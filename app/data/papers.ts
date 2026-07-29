@@ -10,6 +10,7 @@ export type Paper = {
   score: number;
   signal: string;
   source: string;
+  sourceUrl?: string;
 };
 
 export const papers: Paper[] = [
@@ -26,6 +27,7 @@ export const papers: Paper[] = [
     score: 0.94,
     signal: "Strong semantic match · active citation growth",
     source: "arXiv",
+    sourceUrl: "https://arxiv.org/abs/2402.19427",
   },
   {
     id: "2310.11511",
@@ -40,6 +42,7 @@ export const papers: Paper[] = [
     score: 0.89,
     signal: "Matches evaluation intent · cited by saved work",
     source: "arXiv",
+    sourceUrl: "https://arxiv.org/abs/2310.11511",
   },
   {
     id: "2304.05376",
@@ -54,6 +57,7 @@ export const papers: Paper[] = [
     score: 0.86,
     signal: "Foundational survey · broad field coverage",
     source: "arXiv",
+    sourceUrl: "https://arxiv.org/abs/2304.05376",
   },
   {
     id: "2210.11416",
@@ -68,6 +72,7 @@ export const papers: Paper[] = [
     score: 0.82,
     signal: "High citation authority · model lineage match",
     source: "arXiv",
+    sourceUrl: "https://arxiv.org/abs/2210.11416",
   },
   {
     id: "2302.04761",
@@ -82,6 +87,7 @@ export const papers: Paper[] = [
     score: 0.78,
     signal: "Method adjacency · strong downstream influence",
     source: "arXiv",
+    sourceUrl: "https://arxiv.org/abs/2302.04761",
   },
   {
     id: "2110.08861",
@@ -96,6 +102,7 @@ export const papers: Paper[] = [
     score: 0.71,
     signal: "Exploratory connection · shared agent architecture",
     source: "arXiv",
+    sourceUrl: "https://arxiv.org/abs/2110.08861",
   },
 ];
 

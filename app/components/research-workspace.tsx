@@ -3,6 +3,55 @@
 import { FormEvent, useMemo, useState } from "react";
 import { categoryOptions, papers, type Paper } from "../data/papers";
 
+type ApiSearchHit = {
+  rank: number;
+  score: number;
+  evidence: {
+    semantic: number;
+    lexical: number;
+    citation: number;
+    explanation: string;
+  };
+  paper: {
+    arxiv_id: string;
+    title: string;
+    abstract: string;
+    authors: { name: string }[];
+    categories: string[];
+    published_at: string;
+    updated_at: string;
+    citation_count: number;
+    source_url: string;
+  };
+};
+
+type ApiSearchResponse = {
+  query: string;
+  total: number;
+  ranking_version: string;
+  index_manifest: string;
+  source_mode: "fixture" | "production";
+  took_ms: number;
+  results: ApiSearchHit[];
+};
+
+function apiHitToPaper(hit: ApiSearchHit): Paper {
+  return {
+    id: hit.paper.arxiv_id,
+    title: hit.paper.title,
+    authors: hit.paper.authors.map((author) => author.name),
+    abstract: hit.paper.abstract,
+    categories: hit.paper.categories,
+    published: hit.paper.published_at.slice(0, 10),
+    updated: hit.paper.updated_at.slice(0, 10),
+    citations: hit.paper.citation_count,
+    score: hit.score,
+    signal: hit.evidence.explanation,
+    source: "arXiv",
+    sourceUrl: hit.paper.source_url,
+  };
+}
+
 function SearchMark() {
   return <span aria-hidden="true" className="search-mark" />;
 }
@@ -114,7 +163,7 @@ function PaperDetail({
         </section>
         <a
           className="primary-link"
-          href={`https://arxiv.org/abs/${paper.id}`}
+          href={paper.sourceUrl ?? `https://arxiv.org/abs/${paper.id}`}
           rel="noreferrer"
           target="_blank"
         >
@@ -134,6 +183,17 @@ export function ResearchWorkspace() {
   );
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("relevance");
+  const [resultPapers, setResultPapers] = useState(papers);
+  const [searchStatus, setSearchStatus] = useState<
+    Pick<ApiSearchResponse, "ranking_version" | "index_manifest" | "source_mode" | "took_ms">
+  >({
+    ranking_version: "representative-ui-v1",
+    index_manifest: "fixture-2026-07-28",
+    source_mode: "fixture",
+    took_ms: 0,
+  });
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [saved, setSaved] = useState<Set<string>>(new Set(["2304.05376"]));
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
 
@@ -143,7 +203,7 @@ export function ResearchWorkspace() {
       .split(/\W+/)
       .filter((term) => term.length > 2);
 
-    return papers
+    return resultPapers
       .filter((paper) => category === "all" || paper.categories.includes(category))
       .map((paper) => {
         const haystack = `${paper.title} ${paper.abstract}`.toLowerCase();
@@ -160,11 +220,37 @@ export function ResearchWorkspace() {
         }
         return b.displayScore - a.displayScore;
       });
-  }, [activeQuery, category, sort]);
+  }, [activeQuery, category, resultPapers, sort]);
 
-  function submitSearch(event: FormEvent<HTMLFormElement>) {
+  async function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setActiveQuery(draftQuery.trim() || "scientific discovery");
+    const query = draftQuery.trim() || "scientific discovery";
+    setActiveQuery(query);
+    setSearching(true);
+    setSearchError(null);
+
+    const parameters = new URLSearchParams({ query, limit: "20" });
+    if (category !== "all") {
+      parameters.set("category", category);
+    }
+
+    try {
+      const response = await fetch(`/api/v1/search?${parameters}`, {
+        headers: { accept: "application/json" },
+      });
+      if (!response.ok) {
+        throw new Error("Search is temporarily unavailable.");
+      }
+      const payload = (await response.json()) as ApiSearchResponse;
+      setResultPapers(payload.results.map(apiHitToPaper));
+      setSearchStatus(payload);
+    } catch (error) {
+      setSearchError(
+        error instanceof Error ? error.message : "Search is temporarily unavailable.",
+      );
+    } finally {
+      setSearching(false);
+    }
   }
 
   function toggleSaved(id: string) {
@@ -234,7 +320,9 @@ export function ResearchWorkspace() {
             value={draftQuery}
           />
           <span className="keyboard-hint" aria-hidden="true">⌘ K</span>
-          <button type="submit">Search</button>
+          <button disabled={searching} type="submit">
+            {searching ? "Ranking…" : "Search"}
+          </button>
         </form>
         <div className="search-controls">
           <label>
@@ -256,8 +344,19 @@ export function ResearchWorkspace() {
             </select>
           </label>
           <p className="result-count">
-            {rankedPapers.length} representative results for “{activeQuery}”
+            {rankedPapers.length} results for “{activeQuery}” ·{" "}
+            {searchStatus.source_mode === "fixture" ? "preview index" : "production index"}
           </p>
+        </div>
+        <div aria-live="polite" className="search-telemetry">
+          {searchError ? (
+            <span className="search-error">{searchError}</span>
+          ) : (
+            <span>
+              {searchStatus.ranking_version} · {searchStatus.index_manifest} ·{" "}
+              {searchStatus.took_ms.toFixed(1)} ms
+            </span>
+          )}
         </div>
       </section>
 

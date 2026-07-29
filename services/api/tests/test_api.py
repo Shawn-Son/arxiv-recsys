@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from arxiv_recsys.main import app
+from arxiv_recsys.main import app, settings
 
 
 def test_health_contract_and_request_id() -> None:
@@ -10,7 +10,75 @@ def test_health_contract_and_request_id() -> None:
     assert response.status_code == 200
     assert response.headers["x-request-id"] == "test-trace"
     assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["x-frame-options"] == "DENY"
+    assert response.headers["referrer-policy"] == "no-referrer"
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["server-timing"].startswith("app;dur=")
     assert response.json()["status"] == "ok"
+
+
+def test_readiness_checks_repository() -> None:
+    with TestClient(app) as client:
+        response = client.get("/readyz")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+
+
+def test_operations_endpoint_is_hidden_without_a_token() -> None:
+    with TestClient(app) as client:
+        response = client.get("/internal/operations")
+        schema = client.get("/openapi.json").json()
+
+    assert response.status_code == 404
+    assert "/internal/operations" not in schema["paths"]
+
+
+def test_operations_endpoint_requires_and_accepts_bearer_token(monkeypatch) -> None:
+    monkeypatch.setattr(settings, "operations_token", "test-operations-secret")
+    with TestClient(app) as client:
+        unauthorized = client.get(
+            "/internal/operations",
+            headers={"authorization": "Bearer incorrect"},
+        )
+        authorized = client.get(
+            "/internal/operations",
+            headers={"authorization": "Bearer test-operations-secret"},
+        )
+
+    assert unauthorized.status_code == 401
+    assert unauthorized.headers["www-authenticate"] == "Bearer"
+    assert authorized.status_code == 200
+    assert authorized.json()["request_count"] >= 1
+
+
+def test_readiness_reports_repository_failure() -> None:
+    class UnavailableRepository:
+        def manifest(self):
+            raise RuntimeError("unavailable")
+
+    with TestClient(app) as client:
+        client.app.state.paper_repository = UnavailableRepository()
+        response = client.get("/readyz")
+
+    assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "repository_unavailable"
+
+
+def test_unhandled_errors_are_sanitized_and_counted() -> None:
+    class FailingRepository:
+        def search(self, **kwargs):
+            raise RuntimeError("database password must never be returned")
+
+    with TestClient(app, raise_server_exceptions=False) as client:
+        client.app.state.paper_repository = FailingRepository()
+        response = client.get("/v1/search", params={"query": "science"})
+        snapshot = client.app.state.request_metrics.snapshot()
+
+    assert response.status_code == 500
+    assert response.json()["detail"]["code"] == "internal_server_error"
+    assert "password" not in response.text
+    assert snapshot.error_count == 1
 
 
 def test_search_returns_versioned_explainable_results() -> None:

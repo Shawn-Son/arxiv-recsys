@@ -19,6 +19,7 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://aster-research.shawn22587.chatgpt.site"),
   title: {
     default: "Aster — Research discovery, made deliberate",
     template: "%s · Aster",

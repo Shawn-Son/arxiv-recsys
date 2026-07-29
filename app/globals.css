@@ -284,6 +284,11 @@ nav sup {
   background: #c33a2e;
 }
 
+.search-form button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .search-controls {
   align-items: end;
   display: flex;
@@ -322,6 +327,21 @@ nav sup {
   margin: 0 0 2px auto;
   max-width: 400px;
   text-align: right;
+}
+
+.search-telemetry {
+  color: #72756e;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  min-height: 13px;
+  padding-top: 13px;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.search-error {
+  color: #f09b91;
 }
 
 .workspace-layout {
@@ -865,6 +885,10 @@ footer > a:last-child {
   .result-count {
     flex-basis: 100%;
     margin-left: 0;
+    text-align: left;
+  }
+
+  .search-telemetry {
     text-align: left;
   }
 

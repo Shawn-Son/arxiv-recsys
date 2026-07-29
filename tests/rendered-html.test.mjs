@@ -62,3 +62,38 @@ test("exposes a no-cache health contract", async () => {
     version: "0.1.0",
   });
 });
+
+test("serves the versioned preview search contract", async () => {
+  const worker = await loadWorker();
+  const response = await worker.fetch(
+    new Request(
+      "http://localhost/api/v1/search?query=scientific%20discovery&category=cs.LG&limit=3",
+      { headers: { accept: "application/json" } },
+    ),
+    environment,
+    context,
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("x-aster-source"), "preview-index");
+  const payload = await response.json();
+  assert.equal(payload.query, "scientific discovery");
+  assert.equal(payload.ranking_version, "web-contract-adapter-v1");
+  assert.equal(payload.index_manifest, "fixture-2026-07-28");
+  assert.ok(payload.results.length > 0);
+  assert.ok(payload.results.length <= 3);
+  assert.equal(payload.results[0].rank, 1);
+  assert.match(payload.results[0].paper.source_url, /^https:\/\/arxiv\.org\/abs\//);
+});
+
+test("rejects invalid preview search queries", async () => {
+  const worker = await loadWorker();
+  const response = await worker.fetch(
+    new Request("http://localhost/api/v1/search?query=x"),
+    environment,
+    context,
+  );
+
+  assert.equal(response.status, 422);
+  assert.equal((await response.json()).error.code, "invalid_query");
+});

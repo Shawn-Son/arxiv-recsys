@@ -76,6 +76,9 @@ jobs:
           --cov-report=term-missing
           services/api/tests
 
+      - name: Build non-root API image
+        run: docker build --tag aster-api:${{ github.sha }} services/api
+
       - name: Run fixture retrieval benchmark
         run: >-
           uv run --project services/api python

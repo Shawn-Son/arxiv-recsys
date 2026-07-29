@@ -1,0 +1,72 @@
+[
+  {
+    "arxiv_id": "2402.19427",
+    "version": 1,
+    "title": "The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery",
+    "abstract": "A framework that enables foundation models to perform research ideation, experiment design, execution, and scientific writing in an iterative loop.",
+    "authors": [
+      {"name": "Chris Lu"},
+      {"name": "Cong Lu"},
+      {"name": "Robert T. Lange"},
+      {"name": "Jakob Foerster"}
+    ],
+    "categories": ["cs.AI", "cs.LG"],
+    "primary_category": "cs.AI",
+    "published_at": "2024-08-12T00:00:00Z",
+    "updated_at": "2025-01-21T00:00:00Z",
+    "citation_count": 418,
+    "source_url": "https://arxiv.org/abs/2402.19427"
+  },
+  {
+    "arxiv_id": "2310.11511",
+    "version": 1,
+    "title": "SciBench: Evaluating College-Level Scientific Problem-Solving Abilities of Large Language Models",
+    "abstract": "A benchmark of challenging scientific problems spanning mathematics, chemistry, physics, and biology, with fine-grained evaluation of reasoning quality.",
+    "authors": [
+      {"name": "Xiaoxuan Wang"},
+      {"name": "Zizhao Wang"},
+      {"name": "Jialong Liu"}
+    ],
+    "categories": ["cs.CL", "cs.AI"],
+    "primary_category": "cs.CL",
+    "published_at": "2023-10-17T00:00:00Z",
+    "updated_at": "2024-05-29T00:00:00Z",
+    "citation_count": 152,
+    "source_url": "https://arxiv.org/abs/2310.11511"
+  },
+  {
+    "arxiv_id": "2304.05376",
+    "version": 1,
+    "title": "Scientific Discovery in the Age of Artificial Intelligence",
+    "abstract": "A systematic review of how modern machine learning changes hypothesis generation, experimental design, simulation, and scientific communication.",
+    "authors": [
+      {"name": "Hanchen Wang"},
+      {"name": "Tianfan Fu"},
+      {"name": "Yue Zhao"},
+      {"name": "Jure Leskovec"}
+    ],
+    "categories": ["cs.LG", "stat.ML"],
+    "primary_category": "cs.LG",
+    "published_at": "2023-04-11T00:00:00Z",
+    "updated_at": "2024-02-08T00:00:00Z",
+    "citation_count": 367,
+    "source_url": "https://arxiv.org/abs/2304.05376"
+  },
+  {
+    "arxiv_id": "2210.11416",
+    "version": 1,
+    "title": "Galactica: A Large Language Model for Science",
+    "abstract": "A large language model trained on scientific knowledge, including papers, reference material, knowledge bases, and many other scientific modalities.",
+    "authors": [
+      {"name": "Ross Taylor"},
+      {"name": "Marcin Kardas"},
+      {"name": "Guillem Cucurull"}
+    ],
+    "categories": ["cs.CL", "cs.LG"],
+    "primary_category": "cs.CL",
+    "published_at": "2022-11-16T00:00:00Z",
+    "updated_at": "2022-11-16T00:00:00Z",
+    "citation_count": 1042,
+    "source_url": "https://arxiv.org/abs/2210.11416"
+  }
+]

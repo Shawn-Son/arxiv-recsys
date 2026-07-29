@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <title>ArXiv Query: id_list=2402.19427</title>
+  <id>https://arxiv.org/api/test-fixture</id>
+  <updated>2026-07-28T00:00:00Z</updated>
+  <entry>
+    <id>http://arxiv.org/abs/2402.19427v2</id>
+    <updated>2025-01-21T00:00:00Z</updated>
+    <published>2024-08-12T00:00:00Z</published>
+    <title>
+      The AI Scientist: Towards Fully Automated Open-Ended
+      Scientific Discovery
+    </title>
+    <summary>
+      A framework for iterative research ideation, experiments,
+      and scientific writing.
+    </summary>
+    <author><name>Chris Lu</name></author>
+    <author><name>Cong Lu</name></author>
+    <category term="cs.AI" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.LG" scheme="http://arxiv.org/schemas/atom"/>
+    <arxiv:primary_category term="cs.AI"/>
+    <arxiv:doi>10.5555/EXAMPLE.1</arxiv:doi>
+    <arxiv:journal_ref>Example Journal 1 (2025)</arxiv:journal_ref>
+  </entry>
+</feed>

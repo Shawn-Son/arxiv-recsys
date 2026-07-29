@@ -43,3 +43,35 @@ jobs:
 
       - name: Build and test
         run: npm test
+
+  api:
+    name: API quality gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install locked dependencies
+        run: uv sync --project services/api --locked --extra dev
+
+      - name: Lint API
+        run: uv run --project services/api ruff check services/api
+
+      - name: Test API
+        run: >-
+          uv run --project services/api pytest
+          --cov=arxiv_recsys
+          --cov-report=term-missing
+          services/api/tests

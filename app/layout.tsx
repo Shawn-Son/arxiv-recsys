@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,12 +12,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const cormorant = Cormorant_Garamond({
+  variable: "--font-editorial",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "Starter Project",
-  description: "A clean starting point for building your site.",
-  icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+  metadataBase: new URL("https://arxiv-recsys.openai.site"),
+  title: {
+    default: "Aster — Research discovery, made deliberate",
+    template: "%s · Aster",
+  },
+  description:
+    "A citation-aware search and recommendation workspace for arXiv research.",
+  openGraph: {
+    title: "Aster — Research discovery, made deliberate",
+    description:
+      "Search, rank, and organize the literature frontier with transparent recommendations.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Aster — Research discovery, made deliberate",
+    description:
+      "Search, rank, and organize the literature frontier with transparent recommendations.",
   },
 };
 
@@ -29,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} antialiased`}
       >
         {children}
       </body>

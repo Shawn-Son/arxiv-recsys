@@ -44,6 +44,7 @@ npm run check
 
 ```text
 app/                 Web product and route handlers
+services/api/        Versioned metadata, ingestion, and retrieval API
 docs/                Product, architecture, and decision records
 tests/               Render and contract tests
 worker/              Cloudflare-compatible application entrypoint

@@ -4,6 +4,10 @@ Aster is a citation-aware search and recommendation workspace for arXiv
 research. It combines hybrid retrieval, transparent reranking, personalized
 reading trails, and reproducible evaluation in one production-oriented system.
 
+[Production preview](https://aster-research.shawn22587.chatgpt.site) ·
+[API specification](services/api/README.md) ·
+[Evaluation contract](docs/evaluation.md)
+
 > **Project status:** foundation release. The interface currently uses a small
 > representative fixture while the ingestion and retrieval services are being
 > implemented. Corpus size and quality metrics are published only after they

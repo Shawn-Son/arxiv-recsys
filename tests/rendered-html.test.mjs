@@ -97,3 +97,19 @@ test("rejects invalid preview search queries", async () => {
   assert.equal(response.status, 422);
   assert.equal((await response.json()).error.code, "invalid_query");
 });
+
+test("publishes the production canonical URL in the sitemap", async () => {
+  const worker = await loadWorker();
+  const response = await worker.fetch(
+    new Request("http://localhost/sitemap.xml"),
+    environment,
+    context,
+  );
+
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /xml/i);
+  assert.match(
+    await response.text(),
+    /https:\/\/aster-research\.shawn22587\.chatgpt\.site/,
+  );
+});

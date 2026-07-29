@@ -64,7 +64,7 @@ jobs:
           enable-cache: true
 
       - name: Install locked dependencies
-        run: uv sync --project services/api --locked --extra dev
+        run: uv sync --project services/api --locked --extra dev --extra retrieval
 
       - name: Lint API
         run: uv run --project services/api ruff check services/api
@@ -75,3 +75,17 @@ jobs:
           --cov=arxiv_recsys
           --cov-report=term-missing
           services/api/tests
+
+      - name: Run fixture retrieval benchmark
+        run: >-
+          uv run --project services/api python
+          services/api/benchmarks/run_retrieval.py
+          --repetitions 25
+          --output ${{ runner.temp }}/retrieval-benchmark.json
+
+      - name: Upload retrieval benchmark
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrieval-benchmark
+          path: ${{ runner.temp }}/retrieval-benchmark.json
+          retention-days: 14

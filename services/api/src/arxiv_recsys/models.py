@@ -72,6 +72,14 @@ class HealthResponse(BaseModel):
     timestamp: datetime
 
 
+class OperationsSnapshot(BaseModel):
+    request_count: int = Field(ge=0)
+    error_count: int = Field(ge=0)
+    in_flight: int = Field(ge=0)
+    mean_duration_ms: float = Field(ge=0)
+    status_counts: dict[str, int]
+
+
 class DateRange(BaseModel):
     start: date | None = None
     end: date | None = None

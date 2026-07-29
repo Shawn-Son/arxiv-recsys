@@ -89,3 +89,35 @@ jobs:
           name: retrieval-benchmark
           path: ${{ runner.temp }}/retrieval-benchmark.json
           retention-days: 14
+
+  ml:
+    name: ML quality gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install locked dependencies
+        run: uv sync --project services/ml --locked --extra dev
+
+      - name: Lint recommendation models
+        run: uv run --project services/ml ruff check services/ml
+
+      - name: Test recommendation models
+        run: >-
+          uv run --project services/ml pytest
+          --cov=aster_ml
+          --cov-report=term-missing
+          services/ml/tests

@@ -18,6 +18,10 @@ The development service loads a small, explicitly labeled fixture. Production
 storage is introduced through the canonical migration and a repository adapter;
 the API contract does not expose storage-specific fields.
 
+Liveness is exposed at `/healthz`; readiness is exposed at `/readyz`. See the
+[operations runbook](../../docs/operations.md) for private metrics, request
+tracing, load testing, and incident handling.
+
 ## Retrieval benchmark
 
 ```bash

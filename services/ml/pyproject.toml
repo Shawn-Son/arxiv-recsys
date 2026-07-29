@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "arxiv-recsys-ml"
+version = "0.1.0"
+description = "Reproducible recommendation, reranking, and simulation models for Aster."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+authors = [{ name = "Shawn Son" }]
+dependencies = [
+  "numpy>=2.3,<3",
+  "torch>=2.7,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<7",
+  "ruff>=0.12,<1",
+]
+reranker = [
+  "sentence-transformers>=5,<6",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aster_ml"]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-config --strict-markers"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.coverage.run]
+branch = true
+source = ["aster_ml"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true

@@ -26,7 +26,7 @@ def test_search_returns_versioned_explainable_results() -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["ranking_version"] == "metadata-baseline-v1"
+    assert payload["ranking_version"] == "hybrid-rrf-v1"
     assert payload["index_manifest"] == "fixture-2026-07-28"
     assert payload["source_mode"] == "fixture"
     assert len(payload["results"]) <= 3

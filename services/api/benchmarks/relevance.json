@@ -1,0 +1,27 @@
+[
+  {
+    "query": "language models for scientific discovery",
+    "relevance": {
+      "2402.19427": 3,
+      "2304.05376": 3,
+      "2210.11416": 2,
+      "2310.11511": 1
+    }
+  },
+  {
+    "query": "evaluate scientific reasoning in large language models",
+    "relevance": {
+      "2310.11511": 3,
+      "2210.11416": 1,
+      "2304.05376": 1
+    }
+  },
+  {
+    "query": "survey of artificial intelligence for science",
+    "relevance": {
+      "2304.05376": 3,
+      "2402.19427": 2,
+      "2210.11416": 1
+    }
+  }
+]

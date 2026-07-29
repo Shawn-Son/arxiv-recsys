@@ -13,6 +13,7 @@ authors = [{ name = "Shawn Son" }]
 dependencies = [
   "fastapi>=0.116,<1",
   "httpx>=0.28,<1",
+  "numpy>=2.3,<3",
   "pydantic>=2.11,<3",
   "pydantic-settings>=2.10,<3",
   "uvicorn[standard]>=0.35,<1",
@@ -23,6 +24,9 @@ dev = [
   "pytest>=8.4,<9",
   "pytest-cov>=6.2,<7",
   "ruff>=0.12,<1",
+]
+retrieval = [
+  "faiss-cpu>=1.12,<2",
 ]
 
 [tool.hatch.build.targets.wheel]

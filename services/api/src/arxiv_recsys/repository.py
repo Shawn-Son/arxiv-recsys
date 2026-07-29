@@ -1,6 +1,4 @@
 import json
-import math
-import re
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from importlib.resources import files
@@ -14,12 +12,7 @@ from arxiv_recsys.models import (
     SearchHit,
     SearchResponse,
 )
-
-TOKEN_PATTERN = re.compile(r"\w+")
-
-
-def _tokens(value: str) -> set[str]:
-    return {token for token in TOKEN_PATTERN.findall(value.casefold()) if len(token) > 2}
+from arxiv_recsys.retrieval import HybridSearchEngine
 
 
 class FixturePaperRepository:
@@ -30,6 +23,7 @@ class FixturePaperRepository:
 
     def __init__(self, papers: Iterable[Paper]) -> None:
         self._papers = {paper.arxiv_id: paper for paper in papers}
+        self._retriever = HybridSearchEngine(list(self._papers.values()))
 
     @classmethod
     def from_package_data(cls) -> "FixturePaperRepository":
@@ -49,6 +43,9 @@ class FixturePaperRepository:
     def get(self, arxiv_id: str) -> Paper | None:
         return self._papers.get(arxiv_id)
 
+    def all(self) -> tuple[Paper, ...]:
+        return tuple(self._papers.values())
+
     def manifest(self) -> IndexManifest:
         return IndexManifest(
             id=self.manifest_id,
@@ -67,52 +64,27 @@ class FixturePaperRepository:
         limit: int,
     ) -> SearchResponse:
         started = perf_counter()
-        query_tokens = _tokens(query)
-        candidates: list[tuple[Paper, float, RankingEvidence]] = []
-
-        for paper in self._papers.values():
-            if category and category not in paper.categories:
-                continue
-            title_tokens = _tokens(paper.title)
-            abstract_tokens = _tokens(paper.abstract)
-            matched = query_tokens & (title_tokens | abstract_tokens)
-            lexical = len(matched) / max(1, len(query_tokens))
-            title_match = len(query_tokens & title_tokens) / max(1, len(query_tokens))
-            semantic = min(1.0, 0.35 + 0.45 * lexical + 0.2 * title_match)
-            citation = min(1.0, math.log1p(paper.citation_count) / math.log(5000))
-            score = min(1.0, 0.7 * semantic + 0.25 * lexical + 0.05 * citation)
-            candidates.append(
-                (
-                    paper,
-                    score,
-                    RankingEvidence(
-                        semantic=semantic,
-                        lexical=lexical,
-                        citation=citation,
-                        explanation=(
-                            f"{len(matched)} query concepts matched; citation is a capped "
-                            "secondary signal."
-                        ),
-                    ),
-                )
-            )
-
-        candidates.sort(key=lambda item: (-item[1], item[0].arxiv_id))
+        candidates = self._retriever.search(query, category=category, limit=limit)
         results = [
             SearchHit(
-                paper=paper,
+                paper=self._papers[result.paper_id],
                 rank=rank,
-                score=round(score, 6),
-                evidence=evidence,
+                score=round(result.score, 6),
+                evidence=RankingEvidence(
+                    semantic=result.dense_score,
+                    lexical=result.lexical_score,
+                    citation=0.0,
+                    explanation=result.explanation,
+                ),
             )
-            for rank, (paper, score, evidence) in enumerate(candidates[:limit], start=1)
+            for rank, result in enumerate(candidates, start=1)
         ]
         return SearchResponse(
             query=query,
-            total=len(candidates),
+            total=len(results),
             limit=limit,
             results=results,
-            ranking_version=self.ranking_version,
+            ranking_version=self._retriever.version,
             index_manifest=self.manifest_id,
             source_mode="fixture",
             took_ms=round((perf_counter() - started) * 1000, 3),

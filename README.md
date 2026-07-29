@@ -49,14 +49,15 @@ npm run check
 ```text
 app/                 Web product and route handlers
 services/api/        Versioned metadata, ingestion, and retrieval API
+services/ml/         Recommendation, reranking, and simulation contracts
 docs/                Product, architecture, and decision records
 tests/               Render and contract tests
 worker/              Cloudflare-compatible application entrypoint
 .github/workflows/   Continuous integration and security automation
 ```
 
-The data, retrieval, and ML packages will be added in their respective pull
-requests rather than represented by empty scaffolding.
+Each service owns its dependency lock, test suite, and release contract so the
+web, retrieval, and model layers can evolve without hidden environment coupling.
 
 ## Delivery roadmap
 

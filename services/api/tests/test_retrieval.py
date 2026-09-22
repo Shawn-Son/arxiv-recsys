@@ -22,6 +22,30 @@ def test_hashing_encoder_is_normalized_and_deterministic() -> None:
     assert np.isclose(np.linalg.norm(values[0]), 1.0)
 
 
+def test_hashing_encoder_sign_is_independent_of_the_column() -> None:
+    encoder = HashingTextEncoder(dimensions=64)
+    vectors = encoder.encode([f"feature{index}" for index in range(400)])
+
+    signs_by_parity: dict[int, set[float]] = {0: set(), 1: set()}
+    for vector in vectors:
+        (column,) = np.nonzero(vector)[0]
+        signs_by_parity[int(column) % 2].add(float(np.sign(vector[column])))
+
+    assert signs_by_parity[0] == {-1.0, 1.0}
+    assert signs_by_parity[1] == {-1.0, 1.0}
+
+
+def test_hashing_encoder_lets_colliding_features_cancel() -> None:
+    encoder = HashingTextEncoder(dimensions=32)
+    features = [f"term{index}" for index in range(500)]
+    signs_by_column: dict[int, set[float]] = {}
+    for vector in encoder.encode(features):
+        (column,) = np.nonzero(vector)[0]
+        signs_by_column.setdefault(int(column), set()).add(float(np.sign(vector[column])))
+
+    assert any(signs == {-1.0, 1.0} for signs in signs_by_column.values())
+
+
 def test_exact_vector_index_orders_cosine_scores() -> None:
     index = ExactVectorIndex(dimensions=3)
     index.add(

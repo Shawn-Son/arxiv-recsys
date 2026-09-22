@@ -16,7 +16,7 @@ class HashingTextEncoder:
     and artifact interfaces.
     """
 
-    name = "hashing-baseline-v1"
+    name = "hashing-baseline-v2"
 
     def __init__(self, dimensions: int = 384) -> None:
         if dimensions < 32:
@@ -29,10 +29,13 @@ class HashingTextEncoder:
             tokens = TOKEN_PATTERN.findall(text.casefold())
             features = tokens + [f"{left}_{right}" for left, right in pairwise(tokens)]
             for feature in features:
-                digest = hashlib.blake2b(feature.encode("utf-8"), digest_size=8).digest()
-                value = int.from_bytes(digest, byteorder="big")
-                column = value % self.dimensions
-                sign = 1.0 if value & 1 else -1.0
+                # The column and the sign must come from independent halves of
+                # the digest. Deriving both from one integer ties the sign to
+                # the column parity whenever the dimension count is even, so
+                # colliding features always accumulate instead of cancelling.
+                digest = hashlib.blake2b(feature.encode("utf-8"), digest_size=16).digest()
+                column = int.from_bytes(digest[:8], byteorder="big") % self.dimensions
+                sign = 1.0 if digest[8] & 1 else -1.0
                 matrix[row, column] += sign
 
         norms = np.linalg.norm(matrix, axis=1, keepdims=True)
